@@ -1,33 +1,22 @@
 import typer
-import logging
-# from config import CONFIG
+from .utils.logger import get_logger, set_logging_level
 
 app = typer.Typer()
 
 # Logger setup
-logger = logging.getLogger("submerge")
-handler = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = get_logger("submerge")
 
-def set_logging_level(verbosity: int):
-    if verbosity == 0:
-        logger.setLevel(logging.WARNING)
-    elif verbosity == 1:
-        logger.setLevel(logging.INFO)
-    elif verbosity == 2:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.NOTSET)
-    logger.info(f"Logging level set to {logging.getLevelName(logger.level)}")
+def _get_version():
+    try:
+        from importlib import metadata
+        return metadata.version("kangaroo")
+    except metadata.PackageNotFoundError:
+        return "0.1.0" # default version
 
 @app.command()
 def version():
-    """
-    Display the version of the submerge CLI.
-    """
-    typer.echo(f"submerge version: {CONFIG['version']}")
+    pkg_version = _get_version()
+    typer.echo(f"Version: {pkg_version}")
 
 @app.command()
 def debug():
@@ -56,7 +45,7 @@ def main(
 
     A real AI DevOps stack (without making the human obsolete!).
     """
-    set_logging_level(verbose)
+    set_logging_level(logger, verbose)
     logger.info("submerge CLI initialized.")
 
 if __name__ == "__main__":

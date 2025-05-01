@@ -1,165 +1,82 @@
+Prompt: Build a Git-like Prompt Compiler and Human-in-the-Loop Code Generator
 
-# Overview
+You are an assistant tasked with helping design and build a developer tool called Submerge. Submerge is a Git-inspired CLI tool and prompt compiler that enables modular, reproducible, and explainable code generation using large language models (LLMs).
 
-> Human involvement is crucial to be in the loop. There is a desire to move away from quick, boilerplate-heavy code generation towards a more transparent and editable process.
+The user has the following goals and requirements:
 
+### ✅ Core Objectives
 
-# Dive Design Summary
+- **Centralized workspace**: `.dive/` folder acts like `.git/`, containing all prompt-related data, including:
+  - `contracts/`: partial function stubs with docstrings as natural language specs.
+  - `prompts/`: prompt variants (base + overlays) to guide generation.
+  - `impls/`: generated outputs, organized by prompt variant name.
+  - `reasoning.json`: agentic chain-of-thought describing the design process.
+  - `response.json`: raw LLM responses, stored for audit/reproducibility.
 
-Dive Definition and Ambitions
+### Command-line interface (submerge) should support:
 
-    Dive is defined as a dynamically interactive virtual environment, a system for creating interactive environments that can be manipulated by AI agents.
+- **plan**: show contract-to-prompt mappings.
+- **generate**: compile prompt + contract → code + reasoning.
+- **apply**: materialize selected implementation into the real project (e.g., `/src/`).
+- **diff**: compare implementation variants across prompts.
+- **trace**: show reasoning chain for each output.
 
-    It enables the creation of complex dynamic environments for training and testing AI agents.
+### Prompt composition:
 
-    Dive is explicitly not like “VIBE” coding experiences.
+Prompt files are layered like `kustomize`, composed recursively based on a `kustomization.yaml` or folder conventions.
 
-    It targets technical users frustrated with traditional software development tools.
+### File structure symmetry:
 
-    The ambition is to prototype a CLI tool called Submerge in Python.
+All generated implementations preserve original filenames, enabling `git diff` to work naturally. Variants are organized by folder, not filename.
 
-    Submerge aims to slow down and reshape LLM interaction during coding.
+### Human-in-the-loop:
 
-    CLI expertise is becoming essential, and Submerge is designed as a CLI-first skill.
+The system does not apply changes automatically. It supports decision checkpoints, critique loops, and manual approvals.
 
-    Born from frustration, echoing Linus Torvalds' sentiment with existing tools.
+### ⚙️ Example Workflow
 
-    It enables step-by-step code generation, focusing on reproducibility.
+1. Define a function in `generation/data_loader.py`:
 
-    Encourages human-in-the-loop development over boilerplate-heavy automation.
+```python
+def load_user_data(path: str) -> pd.DataFrame:
+    """Load user data from CSV or JSON and validate schema."""
+    pass
+```
 
-    Prioritizes code quality and language tracing for transparency.
+2. Create prompt variants:
 
-    It is currently a throwaway experiment to explore ideas.
+- `.dive/prompts/load_user_data/basic.md`
+- `.dive/prompts/load_user_data/with_logging.md`
 
-Chapter 2: Prompt Prompt Prompt
+3. Run:
 
-    Submerge is prototyped in Python.
+```bash
+submerge generate
+```
 
-    If successful, may be rewritten in C, Rust, or Zig.
+Submerge creates:
 
-    A .git-like folder named .dive will be created.
+- `.dive/impls/basic/data_loader.py`
+- `.dive/impls/basic/reasoning.json`
+- `.dive/impls/basic/response.json`
 
-    .dive will track interaction history, defining and traversing a search space.
+4. You choose and:
 
-    Prompts are composable; many may be needed to achieve results.
+```bash
+submerge apply .dive/impls/basic/data_loader.py
+```
 
-    Process can be complex or simple depending on traversal.
+### 🧠 Key Design Principles
 
-    Analogies used:
+- Mimics Git conventions (discovery, versioning, CLI UX)
+- Separation of concerns (contracts, prompts, outputs, decisions)
+- Supports Copilot and Obsidian workflows
+- Allows LLMs to explain their reasoning step-by-step
+- Enables semantic comparison of generated options
+- Simplifies developer experience: no copy-pasting, no untracked context
 
-        RTS games (StarCraft) vs turn-based (chess, Heroes of Might and Magic).
+### ✨ Bonus
 
-        Graph traversal of all Turing programs.
-
-    Aim to prevent nonsensical AI results when modifying creative prompts.
-
-    Creative thinking is treated as a reproducible prompt sequence.
-
-    Idea: Submerge might compile prompts, generating new versions from old ones.
-
-Chapter 3: Good Code Generation
-
-    MVP: Submerge can self-generate via templated code.
-
-    Good LLM-based generation requires very specific prompting.
-
-    Proposes a project-specific vocabulary, similar to Agile practices.
-
-    Clarity about files, classes, and structure is vital.
-
-    Goal: Make specifying changes (e.g., fixing a line) easier than manual edits.
-
-    Example: Python CLI with Typer for version reporting, debug mode, utilities.
-
-    Logger with verbosity flags (-v, -vv).
-
-    Configuration loaded from config.py.
-
-    Project description stored and sourced from config.
-
-Chapter 4: Kind Of Config
-
-    Uses a basic setup, not agent-mode or advanced chain-of-thought.
-
-    Intention: make LLM interactions more interactive.
-
-    Logger setup is boilerplate.
-
-    Complains that code completion is bad.
-
-    Goal: Make Python display the app callback.
-
-    Project description is missing (a noted issue).
-
-    submerge to be installed via Poetry.
-
-    Described as a composable prototype of Dive.
-
-    Should support code completion features.
-
-    Vision for submerge evolving into submerged apply (s and a).
-
-    Additional folders:
-
-        doc/: documentation
-
-        notes/: markdown-format research notes
-
-    Folder structure = initial prompt, root of a tree.
-
-    Considering using a DAG instead of a tree.
-
-Chapter 5: Like Prompt Json
-
-    Introduces prompt.json instead of inline Python for prompts.
-
-    Supports a meta-programming approach: Python generates Python.
-
-    Documentation will be Markdown, the standard for LLM interaction.
-
-    Markdown will be queryable and structured in a tree.
-
-    Each tree node = prompt generation or history point.
-
-    Path through deepest leaf determines project output.
-
-    Project files will live outside .dive/.
-
-    Plans to support YAML as a superset for JSON.
-
-    Leverages chain-of-thought reasoning in prompts.
-
-    Each prompt step = a tree traversal interaction.
-
-    Capability to reference parts of the tree like a filesystem.
-
-    Envisions setup like Version control + JIT + Obsidian.
-
-    Possible fallback: store prompts in .py files.
-
-Chapter 6: Conclusion
-
-    Introduce meta.json and metadata.json.
-
-    metadata.json includes:
-
-        active context
-
-        structured references
-
-    Plan for parameters like a query transformer to:
-
-        gather multiple sources
-
-        compile to Markdown
-
-        feed into LLM
-
-    response.json mirrors LLM responses with:
-
-        user
-
-        content
-
-    Next step: generate *.json files to capture interaction behavior.
+- Future integration: VS Code extension, prompt linting, auto-testing
+- Inspired by: Git, Kustomize, Copilot, LangChain (but simpler, more dev-focused)
+- Prioritizes minimalism, transparency, reproducibility
