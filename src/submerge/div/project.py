@@ -98,8 +98,9 @@ class DivProject:
         Start by creating and loading the root node.
         Then recursively load all child nodes (by accessing payload of the threads property).
         """
+        # Load the root node and store it with the key 'root'
         node = self._load_node(self.root_folder_path)
-        self.nodes[self.root_folder_path] = node
+        self.nodes[node_key] = node
         children = node.properties["threads"].payload
         # Load the tree of nodes
         for child in children:
@@ -123,4 +124,3 @@ class DivProject:
         except Exception as error:
             logger.error(f"Failed to load node from {node_folder_path}.")
             raise error
-            
