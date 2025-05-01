@@ -22,6 +22,10 @@ class DivProject:
     def root(self):
         return self.nodes['root']
 
+    @property
+    def current_node(self):
+        return self.nodes[self.current_node_key]
+
     def load(self):
         """
         Load the project structure and nodes.
@@ -38,8 +42,8 @@ class DivProject:
         
         # Load the full tree of div-nodes starting from the root path.
         self._load_node_tree(self.root_folder_path)
-        # set the current node to the root node
-        self.current_node = self.nodes.get(self.root_folder_path)
+        # Current node is not None
+        assert self.current_node is not None, "Current node is None. Project loading failed."
 
     def _discover(self):
         """
@@ -64,8 +68,7 @@ class DivProject:
         # get the root path of the project
         self.root_folder_path, self.current_node_key = self.current_node_folder_path.split("dive")
         self.root_folder_path += "dive"
-        if not self.current_node_key:
-            self.current_node_key = "root"
+        self.current_node_key = "root" + self.current_node_key
         # get the project name
         self.project_name = os.path.basename(os.path.dirname(self.root_folder_path))
         # check if the project name is valid

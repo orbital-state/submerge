@@ -1,5 +1,9 @@
 import os
 from .base import BaseDivProp
+from ...utils.div_asserts import is_div_node
+from logging import getLogger
+logger = getLogger(__name__)
+
 
 class ThreadsProp(BaseDivProp):
     """
@@ -28,9 +32,11 @@ class ThreadsProp(BaseDivProp):
             # Check if the item is a directory and not the .div folder
             if os.path.isdir(item_path) and item != ".div":
                 # check if the item is a valid DIV node
-                if os.path.exists(os.path.join(item_path, ".div")):
+                if is_div_node(item_path):
                     # Append the item to the children list
                     self._children.append(item)
+                else:
+                    logger.debug(f"Item is not a valid DIV node: {item_path}")
 
     @property
     def payload(self):

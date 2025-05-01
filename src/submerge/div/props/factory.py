@@ -35,15 +35,5 @@ class PropFactory:
         """
         if name not in mapping:
             raise ValueError(f"Invalid property name: {name}")
-
-        # Dynamically import the class based on the mapping
-        module_name = f".props.{name}"
-        # class_name = mapping[name]
         prop_class = mapping[name]
-
-        try:
-            # module = __import__(module_name, fromlist=[class_name])
-            # prop_class = getattr(module, class_name)
-            return prop_class(name)
-        except (ImportError, AttributeError) as e:
-            raise ImportError(f"Failed to import or initialize property class '{class_name}' from module '{module_name}': {e}")
+        return prop_class(name)
