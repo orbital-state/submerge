@@ -1,3 +1,11 @@
+
+# Overview
+
+> Human involvement is crucial to be in the loop. There is a desire to move away from quick, boilerplate-heavy code generation towards a more transparent and editable process.
+
+
+# Dive Design Summary
+
 Dive Definition and Ambitions
 
     Dive is defined as a dynamically interactive virtual environment, a system for creating interactive environments that can be manipulated by AI agents.
