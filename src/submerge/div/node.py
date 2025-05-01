@@ -1,24 +1,51 @@
 import json
 import os
+from .props.undefined import UndefinedProp
+from .props.factory import PropFactory
+
 
 class DivNode:
+
     def __init__(self, node_path):
-        self.name = None
-        self.type = None
-        self.metadata = {}
-        self.content = None
+        if not os.path.exists(node_path):
+            raise FileNotFoundError(f"Node path does not exist: {node_path}")
+        if not os.path.isdir(node_path):
+            raise NotADirectoryError(f"Node path is not a directory: {node_path}")
+        if not DivNode.is_div_node(node_path):
+            raise ValueError(f"Node path is not a valid DIV node: {node_path}")
+        self.node_path = node_path
+        self.name = os.path.basename(node_path)
+        # Data model is a dynamic list of property names
+        self.properties: dict = {
+            'threads': UndefinedProp('undefined'),
+            'metadata': UndefinedProp('undefined'),
+            'contracts': UndefinedProp('undefined'),
+            'prompts': UndefinedProp('undefined'),
+            'history': UndefinedProp('undefined'),
+            'impls': UndefinedProp('undefined'),
+            'tests': UndefinedProp('undefined'),
+            'reasoning': UndefinedProp('undefined'),
+            'response': UndefinedProp('undefined'),
+        }
 
-    def load(self, file_path):
+    @staticmethod
+    def is_div_node(node_path):
         """
-        Load and populate the properties of the DivNode from current branch folder.
+        Check if the given path is a valid DIV node.
+        A valid DIV node must contain a `.div` subfolder.
         """
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
+        return os.path.exists(os.path.join(node_path, ".div"))
+    
 
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-
-        self.name = data.get("name")
-        self.type = data.get("type")
-        self.metadata = data.get("metadata", {})
-        self.content = data.get("content")
+    def load(self):
+        """
+        Load and populate the properties of the DivNode from the node folder path.
+        """
+        for prop_name in self.properties:
+            prop = PropFactory.create_prop(prop_name)
+            if prop:
+                prop.load(self.node_path)
+                self.properties[prop_name] = prop
+            else:
+                raise ValueError(f"Unknown property name: {prop_name}")
+        

@@ -1,0 +1,8 @@
+name = "submerge"
+description = "A project that uses the Div framework and can integrate with an external ecosystem of modules."
+type = "project" # can be "project" or "library"
+version = "0.1.0"
+
+[dependencies]
+div = ">=0.1.0"
+external-ecosystem = ">=1.0.0"

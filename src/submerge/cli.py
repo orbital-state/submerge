@@ -1,5 +1,5 @@
 import typer
-from .utils.logger import get_logger, set_logging_level
+from .utils.logger import get_logger, set_logging_level, is_debug_mode
 
 app = typer.Typer()
 
@@ -25,6 +25,26 @@ def debug():
     """
     logger.debug("Debugging mode activated.")
     typer.echo("Debugging mode is now active.")
+
+@app.command()
+def status():
+    """
+    Check the status of the current thread.
+    The root thread corresponds to `<project-root>/dive/` folder.
+    """
+    from .div.project import DivProject
+    try:
+        project = DivProject()
+        project.load()
+        current_node = project.current_node
+        typer.echo(f"Current Node: {current_node.name}")
+        typer.echo("Properties:")
+        for prop_name, prop in current_node.properties.items():
+            typer.echo(f"  - {prop_name}: {type(prop).__name__}")
+    except Exception as error:
+        typer.echo(f"Error checking status: {error}", err=True)
+        if is_debug_mode(logger):
+            raise error
 
 @app.callback()
 def main(

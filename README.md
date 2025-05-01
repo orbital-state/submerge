@@ -12,6 +12,8 @@ DIVE can be many things.
 
 * DIV := DIV is not VIBE
 
+* DIV := DIV Environments
+
 * DIVE (Dynamically Interactive Virtual Environments) is a system for creating interactive environments that can be manipulated by AI agents. It allows for the creation of complex, dynamic environments that can be used for training and testing AI agents.
 
 

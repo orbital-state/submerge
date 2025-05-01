@@ -9,7 +9,8 @@ license = {text = "GPL3"}
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "typer (>=0.15.3,<0.16.0)"
+    "typer (>=0.15.3,<0.16.0)",
+    "toml (>=0.10.2,<0.11.0)"
 ]
 
 
